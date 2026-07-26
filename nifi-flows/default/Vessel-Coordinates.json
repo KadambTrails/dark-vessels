@@ -214,6 +214,7 @@
         "dbcp-time-between-eviction-runs" : "-1",
         "Database User" : "postgres",
         "dbcp-soft-min-evictable-idle-time" : "-1",
+        "database-driver-locations" : "/opt/nifi/drivers/postgresql-42.7.3.jar",
         "dbcp-max-idle-conns" : "8"
       },
       "propertyDescriptors" : {
@@ -308,7 +309,7 @@
           "name" : "database-driver-locations",
           "resourceDefinition" : {
             "cardinality" : "MULTIPLE",
-            "resourceTypes" : [ "DIRECTORY", "FILE", "URL" ]
+            "resourceTypes" : [ "FILE", "URL", "DIRECTORY" ]
           },
           "sensitive" : false
         },
@@ -373,7 +374,7 @@
       },
       "properties" : {
         "Support Fragmented Transactions" : "true",
-        "putsql-sql-statement" : "INSERT INTO vessel_positions (mmsi, ship_name, region_source, geom, vessel_time)\nVALUES (\n    ${vessel.mmsi},\n    '${vessel.name}',\n    '${region.source}',\n    ST_SetSRID(ST_MakePoint(${vessel.longitude}, ${vessel.latitude}), 4326), ${vessel.time_utc}\n);",
+        "putsql-sql-statement" : "INSERT INTO vessel_positions (mmsi, ship_name, region_source, geom, vessel_time)\nVALUES (\n    ${vessel.mmsi},\n    '${vessel.name}',\n    '${region.source}',\n    ST_SetSRID(ST_MakePoint(${vessel.longitude}, ${vessel.latitude}), 4326),\n    REPLACE('${vessel.time_utc}', ' UTC', '')::timestamptz\n);",
         "Batch Size" : "100",
         "Obtain Generated Keys" : "false",
         "JDBC Connection Pool" : "ca99d08a-beaf-396a-bd54-709d36ca416c",
@@ -481,7 +482,7 @@
         "Separate By Key" : "false",
         "Processing Strategy" : "FLOW_FILE",
         "Group ID" : "nifi-ais-v2",
-        "auto.offset.reset" : "earliest",
+        "auto.offset.reset" : "latest",
         "Output Strategy" : "USE_VALUE"
       },
       "propertyDescriptors" : {
