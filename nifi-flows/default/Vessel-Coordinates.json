@@ -309,7 +309,7 @@
           "name" : "database-driver-locations",
           "resourceDefinition" : {
             "cardinality" : "MULTIPLE",
-            "resourceTypes" : [ "FILE", "URL", "DIRECTORY" ]
+            "resourceTypes" : [ "URL", "DIRECTORY", "FILE" ]
           },
           "sensitive" : false
         },
@@ -374,7 +374,7 @@
       },
       "properties" : {
         "Support Fragmented Transactions" : "true",
-        "putsql-sql-statement" : "INSERT INTO vessel_positions (mmsi, ship_name, region_source, geom, vessel_time)\nVALUES (\n    ${vessel.mmsi},\n    '${vessel.name}',\n    '${region.source}',\n    ST_SetSRID(ST_MakePoint(${vessel.longitude}, ${vessel.latitude}), 4326),\n    REPLACE('${vessel.time_utc}', ' UTC', '')::timestamptz\n);",
+        "putsql-sql-statement" : "INSERT INTO vessel_positions (\n    mmsi, \n    ship_name, \n    region_source, \n    geom, \n    vessel_time,\n    speed_sog,\n    course_cog,\n    true_heading,\n    nav_status,\n    nav_status_desc\n)\nVALUES (\n    ${vessel.mmsi},\n    '${vessel.name}',\n    '${region.source}',\n    ST_SetSRID(ST_MakePoint(${vessel.longitude}, ${vessel.latitude}), 4326),\n    REPLACE('${vessel.time_utc}', ' UTC', '')::timestamptz,\n    NULLIF('${vessel.sog}', '')::numeric,\n    NULLIF('${vessel.cog}', '')::numeric,\n    NULLIF('${vessel.heading}', '')::integer,\n    NULLIF('${vessel.nav_status}', '')::integer,\n    CASE NULLIF('${vessel.nav_status}', '')::integer\n        WHEN 0 THEN 'Moving with engine'\n        WHEN 1 THEN 'At anchor'\n        WHEN 2 THEN 'Not under command'\n        WHEN 3 THEN 'Restricted manoeuvrability'\n        WHEN 4 THEN 'Constrained by draft'\n        WHEN 5 THEN 'Tied to dock'\n        WHEN 6 THEN 'Stuck on bottom'\n        WHEN 7 THEN 'Fishing'\n        WHEN 8 THEN 'Sailing'\n        WHEN 9 THEN 'High-speed vessel'\n        WHEN 10 THEN 'Wing-in-ground craft'\n        WHEN 11 THEN 'Towing behind'\n        WHEN 12 THEN 'Pushing ahead or alongside'\n        WHEN 13 THEN 'Saved for future use'\n        WHEN 14 THEN 'Emergency rescue active'\n        WHEN 15 THEN 'Unknown status'\n        ELSE 'Unknown status'\n    END\n);\n",
         "Batch Size" : "100",
         "Obtain Generated Keys" : "false",
         "JDBC Connection Pool" : "ca99d08a-beaf-396a-bd54-709d36ca416c",
@@ -647,15 +647,19 @@
       "properties" : {
         "Destination" : "flowfile-attribute",
         "Max String Length" : "20 MB",
+        "vessel.heading" : "$.Message.PositionReport.TrueHeading",
         "vessel.name" : "$.MetaData.ShipName",
         "Return Type" : "auto-detect",
         "vessel.time_utc" : "$.MetaData.time_utc",
         "vessel.longitude" : "$.MetaData.longitude",
         "Null Value Representation" : "empty string",
         "vessel.mmsi" : "$.MetaData.MMSI",
+        "vessel.cog" : "$.Message.PositionReport.Cog",
+        "vessel.nav_status" : "$.Message.PositionReport.NavigationalStatus",
+        "Path Not Found Behavior" : "ignore",
         "region.source" : "$.meta_region_source",
-        "vessel.latitude" : "$.MetaData.latitude",
-        "Path Not Found Behavior" : "ignore"
+        "vessel.sog" : "$.Message.PositionReport.Sog",
+        "vessel.latitude" : "$.MetaData.latitude"
       },
       "propertyDescriptors" : {
         "Destination" : {
@@ -670,6 +674,13 @@
           "dynamic" : false,
           "identifiesControllerService" : false,
           "name" : "Max String Length",
+          "sensitive" : false
+        },
+        "vessel.heading" : {
+          "displayName" : "vessel.heading",
+          "dynamic" : true,
+          "identifiesControllerService" : false,
+          "name" : "vessel.heading",
           "sensitive" : false
         },
         "vessel.name" : {
@@ -714,18 +725,18 @@
           "name" : "vessel.mmsi",
           "sensitive" : false
         },
-        "region.source" : {
-          "displayName" : "region.source",
+        "vessel.cog" : {
+          "displayName" : "vessel.cog",
           "dynamic" : true,
           "identifiesControllerService" : false,
-          "name" : "region.source",
+          "name" : "vessel.cog",
           "sensitive" : false
         },
-        "vessel.latitude" : {
-          "displayName" : "vessel.latitude",
+        "vessel.nav_status" : {
+          "displayName" : "vessel.nav_status",
           "dynamic" : true,
           "identifiesControllerService" : false,
-          "name" : "vessel.latitude",
+          "name" : "vessel.nav_status",
           "sensitive" : false
         },
         "Path Not Found Behavior" : {
@@ -733,6 +744,27 @@
           "dynamic" : false,
           "identifiesControllerService" : false,
           "name" : "Path Not Found Behavior",
+          "sensitive" : false
+        },
+        "region.source" : {
+          "displayName" : "region.source",
+          "dynamic" : true,
+          "identifiesControllerService" : false,
+          "name" : "region.source",
+          "sensitive" : false
+        },
+        "vessel.sog" : {
+          "displayName" : "vessel.sog",
+          "dynamic" : true,
+          "identifiesControllerService" : false,
+          "name" : "vessel.sog",
+          "sensitive" : false
+        },
+        "vessel.latitude" : {
+          "displayName" : "vessel.latitude",
+          "dynamic" : true,
+          "identifiesControllerService" : false,
+          "name" : "vessel.latitude",
           "sensitive" : false
         }
       },
