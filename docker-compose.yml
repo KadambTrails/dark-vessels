@@ -39,6 +39,7 @@ services:
       - SINGLE_USER_CREDENTIALS_PASSWORD=${NIFI_ADMIN_PASSWORD}
     volumes:
       - ./nifi-flows:/opt/nifi/nifi-current/flow_storage
+      - ./drivers:/opt/nifi/drivers
     depends_on:
       - redpanda
 
