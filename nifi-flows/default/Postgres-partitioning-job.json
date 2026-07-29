@@ -1,0 +1,11 @@
+{
+  "flow" : {
+    "createdTimestamp" : 1785312953682,
+    "description" : "",
+    "identifier" : "Postgres-partitioning-job",
+    "lastModifiedTimestamp" : 1785312953682,
+    "name" : "Postgres - partitioning job",
+    "versionCount" : 0
+  },
+  "latest" : false
+}
