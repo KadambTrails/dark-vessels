@@ -22,10 +22,13 @@ CREATE TABLE vessel_positions (
 CREATE INDEX idx_vessel_positions_geom ON vessel_positions USING GIST(geom);
 CREATE INDEX idx_vessel_positions_mmsi ON vessel_positions(mmsi);
 
-CREATE OR REPLACE VIEW ais_last_hour AS
-SELECT *
+CREATE  VIEW public.ais_last_hour AS
+SELECT
+    mmsi,
+    ST_MakeLine(geom ORDER BY vessel_time) AS geom
 FROM vessel_positions
-WHERE vessel_time >= NOW() - INTERVAL '1 hour';
+WHERE vessel_time >= NOW() - INTERVAL '1 hour'
+GROUP BY mmsi;
 
 CREATE OR REPLACE VIEW ais_live_vessels AS
 SELECT DISTINCT ON (mmsi)
