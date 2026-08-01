@@ -26,3 +26,17 @@ CREATE OR REPLACE VIEW ais_last_hour AS
 SELECT *
 FROM vessel_positions
 WHERE vessel_time >= NOW() - INTERVAL '1 hour';
+
+CREATE OR REPLACE VIEW ais_live_vessels AS
+SELECT DISTINCT ON (mmsi)
+       id,
+       mmsi,
+       ship_name,
+       vessel_time,
+       speed_sog,
+       course_cog,
+       true_heading,
+       nav_status,nav_status_desc,
+       geom
+FROM vessel_positions
+ORDER BY mmsi, vessel_time DESC;
