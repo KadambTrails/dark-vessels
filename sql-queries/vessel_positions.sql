@@ -21,3 +21,8 @@ CREATE TABLE vessel_positions (
 -- 3. Create global spatial index (automatically inherited by child partitions)
 CREATE INDEX idx_vessel_positions_geom ON vessel_positions USING GIST(geom);
 CREATE INDEX idx_vessel_positions_mmsi ON vessel_positions(mmsi);
+
+CREATE OR REPLACE VIEW ais_last_hour AS
+SELECT *
+FROM vessel_positions
+WHERE vessel_time >= NOW() - INTERVAL '1 hour';
