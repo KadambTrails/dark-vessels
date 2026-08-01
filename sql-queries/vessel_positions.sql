@@ -22,6 +22,8 @@ CREATE TABLE vessel_positions (
 CREATE INDEX idx_vessel_positions_geom ON vessel_positions USING GIST(geom);
 CREATE INDEX idx_vessel_positions_mmsi ON vessel_positions(mmsi);
 
+
+----------------------------------view for the visualisation-----------------------------------
 CREATE  VIEW public.ais_last_hour AS
 SELECT
     mmsi,
@@ -43,3 +45,11 @@ SELECT DISTINCT ON (mmsi)
        geom
 FROM vessel_positions
 ORDER BY mmsi, vessel_time DESC;
+
+------------------------------------Indexes for better performance-----------------------------
+
+CREATE INDEX idx_vessel_time
+ON vessel_positions(vessel_time DESC);
+
+CREATE INDEX idx_vessel_mmsi_time
+ON vessel_positions(mmsi, vessel_time DESC);
