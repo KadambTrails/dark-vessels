@@ -49,8 +49,38 @@
       "destination" : {
         "comments" : "",
         "groupId" : "flow-contents-group",
+        "id" : "febfa1b2-574f-3bcb-be28-1168235448ce",
+        "name" : "Funnel",
+        "type" : "FUNNEL"
+      },
+      "flowFileExpiration" : "0 sec",
+      "groupIdentifier" : "flow-contents-group",
+      "identifier" : "0d9628ca-554d-3fa4-b6c2-fe8016cd91d7",
+      "labelIndex" : 0,
+      "loadBalanceCompression" : "DO_NOT_COMPRESS",
+      "loadBalanceStrategy" : "DO_NOT_LOAD_BALANCE",
+      "name" : "",
+      "partitioningAttribute" : "",
+      "prioritizers" : [ ],
+      "selectedRelationships" : [ "failure" ],
+      "source" : {
+        "comments" : "",
+        "groupId" : "flow-contents-group",
         "id" : "77b58418-98b1-38ad-80a5-cd51cdfa1d71",
         "name" : "PutSQL",
+        "type" : "PROCESSOR"
+      },
+      "zIndex" : 0
+    }, {
+      "backPressureDataSizeThreshold" : "1 GB",
+      "backPressureObjectThreshold" : 10000,
+      "bends" : [ ],
+      "componentType" : "CONNECTION",
+      "destination" : {
+        "comments" : "",
+        "groupId" : "flow-contents-group",
+        "id" : "3c261e21-18a0-3070-b980-c8c3ff296506",
+        "name" : "UpdateAttribute",
         "type" : "PROCESSOR"
       },
       "flowFileExpiration" : "0 sec",
@@ -68,6 +98,36 @@
         "groupId" : "flow-contents-group",
         "id" : "e04835aa-d65e-3a97-8899-f772d4cb2d6a",
         "name" : "EvaluateJsonPath",
+        "type" : "PROCESSOR"
+      },
+      "zIndex" : 0
+    }, {
+      "backPressureDataSizeThreshold" : "1 GB",
+      "backPressureObjectThreshold" : 10000,
+      "bends" : [ ],
+      "componentType" : "CONNECTION",
+      "destination" : {
+        "comments" : "",
+        "groupId" : "flow-contents-group",
+        "id" : "77b58418-98b1-38ad-80a5-cd51cdfa1d71",
+        "name" : "PutSQL",
+        "type" : "PROCESSOR"
+      },
+      "flowFileExpiration" : "0 sec",
+      "groupIdentifier" : "flow-contents-group",
+      "identifier" : "ed1380bb-a300-376e-a5a8-050677a372a9",
+      "labelIndex" : 0,
+      "loadBalanceCompression" : "DO_NOT_COMPRESS",
+      "loadBalanceStrategy" : "DO_NOT_LOAD_BALANCE",
+      "name" : "",
+      "partitioningAttribute" : "",
+      "prioritizers" : [ ],
+      "selectedRelationships" : [ "success" ],
+      "source" : {
+        "comments" : "",
+        "groupId" : "flow-contents-group",
+        "id" : "3c261e21-18a0-3070-b980-c8c3ff296506",
+        "name" : "UpdateAttribute",
         "type" : "PROCESSOR"
       },
       "zIndex" : 0
@@ -309,7 +369,7 @@
           "name" : "database-driver-locations",
           "resourceDefinition" : {
             "cardinality" : "MULTIPLE",
-            "resourceTypes" : [ "URL", "DIRECTORY", "FILE" ]
+            "resourceTypes" : [ "URL", "FILE", "DIRECTORY" ]
           },
           "sensitive" : false
         },
@@ -338,7 +398,15 @@
     "externalControllerServiceReferences" : { },
     "flowFileConcurrency" : "UNBOUNDED",
     "flowFileOutboundPolicy" : "STREAM_WHEN_AVAILABLE",
-    "funnels" : [ ],
+    "funnels" : [ {
+      "componentType" : "FUNNEL",
+      "groupIdentifier" : "flow-contents-group",
+      "identifier" : "febfa1b2-574f-3bcb-be28-1168235448ce",
+      "position" : {
+        "x" : 1866.248,
+        "y" : 655.8331697998046
+      }
+    } ],
     "identifier" : "flow-contents-group",
     "inputPorts" : [ ],
     "labels" : [ ],
@@ -351,7 +419,7 @@
     },
     "processGroups" : [ ],
     "processors" : [ {
-      "autoTerminatedRelationships" : [ "success", "failure", "retry" ],
+      "autoTerminatedRelationships" : [ "success", "retry" ],
       "backoffMechanism" : "PENALIZE_FLOWFILE",
       "bulletinLevel" : "WARN",
       "bundle" : {
@@ -369,12 +437,12 @@
       "name" : "PutSQL",
       "penaltyDuration" : "30 sec",
       "position" : {
-        "x" : 1216.0,
-        "y" : -168.0
+        "x" : 1192.0,
+        "y" : 256.0
       },
       "properties" : {
         "Support Fragmented Transactions" : "true",
-        "putsql-sql-statement" : "INSERT INTO vessel_positions (\n    mmsi, \n    ship_name, \n    region_source, \n    geom, \n    vessel_time,\n    speed_sog,\n    course_cog,\n    true_heading,\n    nav_status,\n    nav_status_desc\n)\nVALUES (\n    ${vessel.mmsi},\n    '${vessel.name}',\n    '${region.source}',\n    ST_SetSRID(ST_MakePoint(${vessel.longitude}, ${vessel.latitude}), 4326),\n    REPLACE('${vessel.time_utc}', ' UTC', '')::timestamptz,\n    NULLIF('${vessel.sog}', '')::numeric,\n    NULLIF('${vessel.cog}', '')::numeric,\n    NULLIF('${vessel.heading}', '')::integer,\n    NULLIF('${vessel.nav_status}', '')::integer,\n    CASE NULLIF('${vessel.nav_status}', '')::integer\n        WHEN 0 THEN 'Moving with engine'\n        WHEN 1 THEN 'At anchor'\n        WHEN 2 THEN 'Not under command'\n        WHEN 3 THEN 'Restricted manoeuvrability'\n        WHEN 4 THEN 'Constrained by draft'\n        WHEN 5 THEN 'Tied to dock'\n        WHEN 6 THEN 'Stuck on bottom'\n        WHEN 7 THEN 'Fishing'\n        WHEN 8 THEN 'Sailing'\n        WHEN 9 THEN 'High-speed vessel'\n        WHEN 10 THEN 'Wing-in-ground craft'\n        WHEN 11 THEN 'Towing behind'\n        WHEN 12 THEN 'Pushing ahead or alongside'\n        WHEN 13 THEN 'Saved for future use'\n        WHEN 14 THEN 'Emergency rescue active'\n        WHEN 15 THEN 'Unknown status'\n        ELSE 'Unknown status'\n    END\n);\n",
+        "putsql-sql-statement" : "INSERT INTO vessel_positions (\n    mmsi, \n    ship_name, \n    region_source, \n    geom, \n    vessel_time,\n    speed_sog,\n    course_cog,\n    true_heading,\n    nav_status,\n    nav_status_desc\n)\nVALUES (\n    ${vessel.mmsi},\n    '${vessel.name.escaped}',\n    '${region.source}',\n    ST_SetSRID(ST_MakePoint(${vessel.longitude}, ${vessel.latitude}), 4326),\n    REPLACE('${vessel.time_utc}', ' UTC', '')::timestamptz,\n    NULLIF('${vessel.sog}', '')::numeric,\n    NULLIF('${vessel.cog}', '')::numeric,\n    NULLIF('${vessel.heading}', '')::integer,\n    NULLIF('${vessel.nav_status}', '')::integer,\n    CASE NULLIF('${vessel.nav_status}', '')::integer\n        WHEN 0 THEN 'Moving with engine'\n        WHEN 1 THEN 'At anchor'\n        WHEN 2 THEN 'Not under command'\n        WHEN 3 THEN 'Restricted manoeuvrability'\n        WHEN 4 THEN 'Constrained by draft'\n        WHEN 5 THEN 'Tied to dock'\n        WHEN 6 THEN 'Stuck on bottom'\n        WHEN 7 THEN 'Fishing'\n        WHEN 8 THEN 'Sailing'\n        WHEN 9 THEN 'High-speed vessel'\n        WHEN 10 THEN 'Wing-in-ground craft'\n        WHEN 11 THEN 'Towing behind'\n        WHEN 12 THEN 'Pushing ahead or alongside'\n        WHEN 13 THEN 'Saved for future use'\n        WHEN 14 THEN 'Emergency rescue active'\n        WHEN 15 THEN 'Unknown status'\n        ELSE 'Unknown status'\n    END\n);\n",
         "Batch Size" : "100",
         "Obtain Generated Keys" : "false",
         "JDBC Connection Pool" : "ca99d08a-beaf-396a-bd54-709d36ca416c",
@@ -621,6 +689,79 @@
       "schedulingStrategy" : "TIMER_DRIVEN",
       "style" : { },
       "type" : "org.apache.nifi.kafka.processors.ConsumeKafka",
+      "yieldDuration" : "1 sec"
+    }, {
+      "autoTerminatedRelationships" : [ ],
+      "backoffMechanism" : "PENALIZE_FLOWFILE",
+      "bulletinLevel" : "WARN",
+      "bundle" : {
+        "artifact" : "nifi-update-attribute-nar",
+        "group" : "org.apache.nifi",
+        "version" : "2.0.0"
+      },
+      "comments" : "",
+      "componentType" : "PROCESSOR",
+      "concurrentlySchedulableTaskCount" : 1,
+      "executionNode" : "ALL",
+      "groupIdentifier" : "flow-contents-group",
+      "identifier" : "3c261e21-18a0-3070-b980-c8c3ff296506",
+      "maxBackoffPeriod" : "10 mins",
+      "name" : "UpdateAttribute",
+      "penaltyDuration" : "30 sec",
+      "position" : {
+        "x" : 440.0,
+        "y" : 256.0
+      },
+      "properties" : {
+        "Store State" : "Do not store state",
+        "canonical-value-lookup-cache-size" : "100",
+        "vessel.name.escaped" : "${vessel.name:replace(\"'\", \"''\")}"
+      },
+      "propertyDescriptors" : {
+        "Delete Attributes Expression" : {
+          "displayName" : "Delete Attributes Expression",
+          "dynamic" : false,
+          "identifiesControllerService" : false,
+          "name" : "Delete Attributes Expression",
+          "sensitive" : false
+        },
+        "Store State" : {
+          "displayName" : "Store State",
+          "dynamic" : false,
+          "identifiesControllerService" : false,
+          "name" : "Store State",
+          "sensitive" : false
+        },
+        "canonical-value-lookup-cache-size" : {
+          "displayName" : "Cache Value Lookup Cache Size",
+          "dynamic" : false,
+          "identifiesControllerService" : false,
+          "name" : "canonical-value-lookup-cache-size",
+          "sensitive" : false
+        },
+        "Stateful Variables Initial Value" : {
+          "displayName" : "Stateful Variables Initial Value",
+          "dynamic" : false,
+          "identifiesControllerService" : false,
+          "name" : "Stateful Variables Initial Value",
+          "sensitive" : false
+        },
+        "vessel.name.escaped" : {
+          "displayName" : "vessel.name.escaped",
+          "dynamic" : true,
+          "identifiesControllerService" : false,
+          "name" : "vessel.name.escaped",
+          "sensitive" : false
+        }
+      },
+      "retriedRelationships" : [ ],
+      "retryCount" : 10,
+      "runDurationMillis" : 25,
+      "scheduledState" : "ENABLED",
+      "schedulingPeriod" : "0 sec",
+      "schedulingStrategy" : "TIMER_DRIVEN",
+      "style" : { },
+      "type" : "org.apache.nifi.processors.attributes.UpdateAttribute",
       "yieldDuration" : "1 sec"
     }, {
       "autoTerminatedRelationships" : [ "failure", "unmatched" ],
