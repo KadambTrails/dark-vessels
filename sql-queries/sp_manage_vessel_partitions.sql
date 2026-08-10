@@ -1,9 +1,6 @@
-CREATE OR REPLACE PROCEDURE sp_manage_vessel_partitions(
-    p_retention_days INT DEFAULT 7,
-    p_future_days INT DEFAULT 7
-)
-LANGUAGE plpgsql
-AS $$
+CREATE OR REPLACE PROCEDURE public.sp_manage_vessel_partitions(IN p_retention_days integer DEFAULT 7, IN p_future_days integer DEFAULT 7)
+ LANGUAGE plpgsql
+AS $procedure$
 DECLARE
     v_target_date DATE;
     v_partition_name TEXT;
@@ -30,14 +27,26 @@ BEGIN
 
     -- 2. DROP EXPIRED PARTITIONS (Older than p_retention_days)
 
-    FOR i IN 1..7 LOOP
-        v_old_date := CURRENT_DATE - (p_retention_days + i);
-        v_old_partition := 'vessel_positions_' || to_char(v_old_date, 'YYYY_MM_DD');
+    --FOR i IN 1..7 LOOP
+        --v_old_date := CURRENT_DATE - (p_retention_days + i);
+        --v_old_partition := 'vessel_positions_' || to_char(v_old_date, 'YYYY_MM_DD');
 
-        EXECUTE format('DROP TABLE IF EXISTS %I CASCADE;', v_old_partition);
-    END LOOP;
+        --EXECUTE format('DROP TABLE IF EXISTS %I CASCADE;', v_old_partition);
+    --END LOOP;
 
-    RAISE NOTICE 'Partition maintenance complete. Retained past % days, prepared next % days.', 
-                 p_retention_days, p_future_days;
+    RAISE NOTICE 'Partition maintenance complete. Prepared next % days.', 
+                  p_future_days;
 END;
-$$;
+$procedure$
+;
+
+
+
+------------------------------------list of archived partitions------------------------------------
+
+CREATE TABLE IF NOT EXISTS archived_partitions (
+    partition_name text PRIMARY KEY,
+    row_count bigint,
+    minio_path text,
+    archived_at timestamp DEFAULT now()
+);
